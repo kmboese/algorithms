@@ -1,5 +1,6 @@
 from copy import copy
 
+DEBUG = True
 graphID = 0
 nodeID = 1
 
@@ -9,6 +10,7 @@ class Node:
 
         self.ID = nodeID
         self.neighbors = []
+        self.prev = None
         self.visited = False
         self.value = float('inf')
 
@@ -68,6 +70,24 @@ class Graph:
                 print("{} ".format(node.ID), end="")
         print()
 
+# Validate graph for dijkstra's
+def isValidGraph(g, startID, endID):
+    # Verify that the start and end nodes are in the graph
+    if g.nodes[startID] is None:
+        print("Error: start node not in graph!")
+        return False
+    if g.nodes[endID] is None:
+        print("Error: end node not in graph!")
+        return False
+
+    # Verify that all nodes are unvisited at start
+    for node in g.nodes.values():
+        if node.visited:
+            print("Error: node is visited at start!")
+            return False
+    
+    return True
+
 
 def toString(nodes):
     ret = ""
@@ -76,6 +96,10 @@ def toString(nodes):
         ret += " "
 
     return ret
+
+def dPrint(message):
+    if DEBUG:
+        print(message)
 
 '''
 Finds the shortest path between a start node and and end node.
@@ -87,18 +111,9 @@ Returns:
     Length of the shortest path between start and end, or -1 if error occurs.
 '''
 def shortestPath(g, startID, endID): 
-    # Verify that the start and end nodes are in the graph
-    if g.nodes[startID] is None:
-        print("Error: start node not in graph!")
+    if not isValidGraph(g, startID, endID):
+        print("Error: graph not valid to perform dijkstra's")
         return -1
-    if g.nodes[endID] is None:
-        print("Error: end node not in graph!")
-        return -1
-
-    # Verify that all nodes are unvisited at start
-    for node in g.nodes.values():
-        if node.visited:
-            print("Error: node is visited at start!")
 
 
     # List of nodes that have not been visited
@@ -129,7 +144,7 @@ def shortestPath(g, startID, endID):
 
             # Update cost if new cost is lower than previous cost
             if newCost < oldCost:
-                print("DEBUG: node {} cost updated from {} to {}".format\
+                dPrint("DEBUG: node {} cost updated from {} to {}".format\
                     (node.ID, oldCost, newCost))
                 node.value = newCost
 
