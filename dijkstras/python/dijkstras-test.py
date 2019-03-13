@@ -22,17 +22,13 @@ def main():
     g.connect(4,5,6)
     g.connect(6,5,9)
 
-    # Print graph
-    g.print()
-
     # Test shortest path using Dijkstra's:
     startID = 1
     endID = 5
-    pathLen = shortestPath(g, startID, endID)
+    pathLen, pathNodes = shortestPath(g, startID, endID)
 
-    print("The shortest path between nodes {} and {} is {}".format\
-        (startID, endID, pathLen))
-
+    print("The shortest path between nodes {} and {} is {}, by taking path {}"\
+        .format(startID, endID, pathLen, pathNodes))
 
 if __name__ == "__main__":
     main()
