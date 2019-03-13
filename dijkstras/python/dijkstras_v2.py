@@ -1,6 +1,6 @@
-from copy import copy, deepcopy
+from copy import copy
 
-DEBUG = False
+DEBUG = True
 graphID = 0
 nodeID = 1
 
@@ -15,6 +15,9 @@ class Node:
         self.value = float('inf')
 
         nodeID += 1
+
+    def getNeighbors(self):
+        return self.neighbors
 
 class Graph:
     def __init__(self):
@@ -55,12 +58,8 @@ class Graph:
 
     def print(self):
         for node in self.nodes.values():
-            if node.prev is not None:
-                print("Node {}: value = {}\tprev = {}".format(\
-                    node.ID, node.value, node.prev.ID))
-            else:
-                print("Node {}: value = {}\tprev = {}".format(\
-                    node.ID, node.value, None))
+            print("Node {}: value = {}".format(\
+                node.ID, node.value))
             print("Neighbors: {}".format(\
                 node.neighbors))
 
@@ -116,33 +115,26 @@ def shortestPath(g, startID, endID):
         print("Error: graph not valid to perform dijkstra's")
         return -1
 
-    currentNode = None          # node currently being examined
-    unvisitedList = []          # list of unvisited nodes
-    returnPath = []             # Sequence of nodes to obtain shortest path
 
-    # All nodes unvisited at the beginning
-    
-    for node in g.nodes.values():
-        unvisitedList.append(node)
-    #tentativeList = []
+    # List of nodes that have not been visited
+    unvisitedList = []
+    tentativeList = []
 
     # Start node has 0 value by definition
     currentNode = g.nodes[startID]
     currentNode.value = 0
+    endNode = g.nodes[endID]
 
-    # print graph before Dijkstra's
-    if DEBUG:
-        g.print()
+    # All nodes are unvisited at beginning
+    unvisitedList.extend(g.nodes.keys())
+    print("Unvisited list: {}".format(unvisitedList))
+    # Tentative list starts as just the start node
+    tentativeList.append(currentNode)
 
-    # Main loop: update while nodes are unvisisted
-    while len(unvisitedList) != 0:
+    print("Tentative list: {}".format(toString(tentativeList)))
 
-        # Current node is unvisited node with smallest value
-        unvisitedList.sort(key=lambda node: node.value, reverse=True)
-        currentNode = unvisitedList[-1]
-        unvisitedList.pop()
-
-        dPrint("Current node: {}".format(currentNode.ID))
+    # Main loop: update while end node is not visited
+    while not endNode.visited:
 
         # Update values of neighbor nodes
         for neighbor in currentNode.neighbors:
@@ -152,21 +144,38 @@ def shortestPath(g, startID, endID):
 
             # Update cost if new cost is lower than previous cost
             if newCost < oldCost:
-                dPrint("DEBUG: node {} cost updated from {} to {} by \
-node {}".format(node.ID, oldCost, newCost, currentNode.ID))
+                dPrint("DEBUG: node {} cost updated from {} to {}".format\
+                    (node.ID, oldCost, newCost))
                 node.value = newCost
-                node.prev = copy(currentNode)
 
-    # DEBUG: print graph at the end
-    if DEBUG:
-        g.print()
+        # Mark the current node as visisted
+        currentNode.visited = True
 
-    # Save the actual path
-    currentNode = g.nodes[endID]
-    while currentNode is not None:
-        returnPath.append(currentNode.ID)
-        currentNode = currentNode.prev
-    returnPath = returnPath[::-1]
+        # if end node was visited, return value as the shortest path
+        if endNode.visited:
+            return endNode.value
+
+        # Add currentNode neighbors to tentative list (no duplicates)
+        # Add neighbors to tentative list
+        
+        for neighbor in currentNode.neighbors:
+            valid = True
+            for node in tentativeList:
+                if node.ID == neighbor:
+                    valid = False
+            if valid:
+                tentativeList.append(g.nodes[neighbor])
+
+        # sort tentative list by current value
+        tentativeList.sort(key=lambda node: node.value, reverse=True)
+
+        # Choose lowest value node as the new current node
+        tentativeList.pop()
+        print("Node " + str(currentNode.ID) + " removed from tentative list")
+        currentNode = tentativeList[-1]
+        print("Current node: {}".format(currentNode.ID))
+        print("Tentative list: {}".format(toString(tentativeList)))
+        g.printVisited()
     
-    return g.nodes[endID].value, returnPath
+    return g.nodes[endID].value
 
