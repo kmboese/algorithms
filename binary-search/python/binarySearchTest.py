@@ -7,7 +7,7 @@ from binarySearch import binarySearch
 # Add algorithms directory to path
 sys.path.insert(0, \
     r"D:\\github-projects\\algorithms\\quicksort\\python")
-import quicksort
+from quicksort import quicksort
 sys.path.pop(0)
 
 
@@ -44,7 +44,7 @@ def testRandom():
         arr.append(randint(low, high))
 
     # Sort array
-    quicksort.quicksort(arr)
+    quicksort(arr)
 
     # Ensure we can find all the elements in the array
     for num in arr:
